@@ -18,6 +18,12 @@ export class Inject<L extends Record<string, any>> {
         return this._globalInstance;
     }
 
+    public static removeAllInstance(): void {
+
+        this._globalInstance.remove();
+        this._instance.clear();
+    }
+
     private static readonly _globalInstance: Inject<any> = new Inject();
     private static readonly _instance: Map<string, Inject<any>> = new Map<string, Inject<any>>();
 
@@ -28,6 +34,13 @@ export class Inject<L extends Record<string, any>> {
 
         this._services = new Map<keyof L, any>();
         this._instances = new Map<keyof L, any>();
+    }
+
+    public remove(): this {
+
+        this._services.clear();
+        this._instances.clear();
+        return this;
     }
 
     public createServiceInjector(): (name: keyof L) => ClassDecorator {
