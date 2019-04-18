@@ -23,19 +23,30 @@ export class Inject {
         this._instances = new Map<string, any>();
     }
 
-    public createServiceInjector() {
-        
+    public createServiceInjector<L extends Record<string, any>>(): (name: keyof L) => ClassDecorator {
+        return (name: keyof L): ClassDecorator => {
+            return (target: Function): void => {
+                this.service(name as string, target);
+                return;
+            }
+        }
+    }
+
+    public createServiceAutoWirer<L extends Record<string, any>>(): <T extends keyof L>(name: T) => L[T] {
+        return <T extends keyof L>(name: T): L[T] => {
+            return this.getService(name as string);
+        };
     }
 
     public service(name: string, service: any) {
         this._services.set(name, service);
     }
 
-    public getService(name: string){
-        
-        if(this._services.has(name)){
-            if(!this._instances.has(name)){
-                const Construable = this._services.get(name);
+    public getService(name: string) {
+
+        if (this._services.has(name)) {
+            if (!this._instances.has(name)) {
+                const Construable: any = this._services.get(name) as any;
                 this._instances.set(name, new Construable());
             }
             return this._instances.get(name);
@@ -44,13 +55,3 @@ export class Inject {
         throw new Error('NONE');
     }
 }
-
-export const Service = (name: string, namespace?: string) => {
-    
-    return (target: any) => {
-        
-        const instance: Inject = Inject.getInstance(namespace);
-        instance.service(name, target);
-        return target;
-    }
-};
