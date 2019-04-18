@@ -1,29 +1,31 @@
-export class Inject {
+export class Inject<L extends Record<string, any>> {
 
-    private static readonly _globalInstance: Inject = new Inject();
-    private static readonly _instance: Map<string, Inject> = new Map<string, Inject>();
+    private static readonly _globalInstance: Inject<any> = new Inject();
+    private static readonly _instance: Map<string, Inject<any>> = new Map<string, Inject<any>>();
 
-    public static getInstance(namespace?: string): Inject {
+    public static getInstance<L extends Record<string, any>>(namespace?: string): Inject<L> {
 
         if (namespace) {
-            if (!this._instance.has(namespace)) {
-                this._instance.set(namespace, new Inject());
-            }
 
-            return this._instance.get(namespace) as Inject;
+            if (!this._instance.has(namespace)) {
+                this._instance.set(namespace, new Inject<L>());
+            }
+            return this._instance.get(namespace) as Inject<L>;
         }
         return this._globalInstance;
     }
 
-    private readonly _services: Map<string, any>;
-    private readonly _instances: Map<string, any>;
+    private readonly _services: Map<keyof L, any>;
+    private readonly _instances: Map<keyof L, any>;
 
     private constructor() {
-        this._services = new Map<string, any>();
-        this._instances = new Map<string, any>();
+
+        this._services = new Map<keyof L, any>();
+        this._instances = new Map<keyof L, any>();
     }
 
-    public createServiceInjector<L extends Record<string, any>>(): (name: keyof L) => ClassDecorator {
+    public createServiceInjector(): (name: keyof L) => ClassDecorator {
+
         return (name: keyof L): ClassDecorator => {
             return (target: Function): void => {
                 this.service(name as string, target);
@@ -32,26 +34,42 @@ export class Inject {
         }
     }
 
-    public createServiceAutoWirer<L extends Record<string, any>>(): <T extends keyof L>(name: T) => L[T] {
+    public createServiceAutoWirer(): <T extends keyof L>(name: T) => L[T] {
+
         return <T extends keyof L>(name: T): L[T] => {
             return this.getService(name as string);
         };
     }
 
-    public service(name: string, service: any) {
+    public service<T extends keyof L>(name: T, service: L[T]): this {
+
         this._services.set(name, service);
+        return this;
     }
 
-    public getService(name: string) {
+    public getService<T extends keyof L>(name: T): any {
 
-        if (this._services.has(name)) {
-            if (!this._instances.has(name)) {
-                const Construable: any = this._services.get(name) as any;
-                this._instances.set(name, new Construable());
-            }
-            return this._instances.get(name);
+        this._ensureService(name);
+        if (!this._instances.has(name)) {
+            const Construable: any = this._services.get(name) as any;
+            this._instances.set(name, new Construable());
         }
+        return this._instances.get(name);
+    }
 
-        throw new Error('NONE');
+    public refreshService<T extends keyof L>(name: T, ...args: any[]): any {
+
+        this._ensureService(name);
+        const Construable: L[T] = this._services.get(name) as any;
+        const constructed: any = new Construable(...args);
+        this._instances.set(name, constructed);
+        return constructed;
+    }
+
+    private _ensureService(name: keyof L): void {
+
+        if (!this._services.has(name)) {
+            throw new Error('NONE');
+        }
     }
 }
