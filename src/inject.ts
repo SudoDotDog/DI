@@ -1,7 +1,10 @@
-export class Inject<L extends Record<string, any>> {
+/**
+ * @author WMXPY
+ * @namespace DI
+ * @description Inject
+ */
 
-    private static readonly _globalInstance: Inject<any> = new Inject();
-    private static readonly _instance: Map<string, Inject<any>> = new Map<string, Inject<any>>();
+export class Inject<L extends Record<string, any>> {
 
     public static getInstance<L extends Record<string, any>>(namespace?: string): Inject<L> {
 
@@ -15,6 +18,9 @@ export class Inject<L extends Record<string, any>> {
         return this._globalInstance;
     }
 
+    private static readonly _globalInstance: Inject<any> = new Inject();
+    private static readonly _instance: Map<string, Inject<any>> = new Map<string, Inject<any>>();
+
     private readonly _services: Map<keyof L, any>;
     private readonly _instances: Map<keyof L, any>;
 
@@ -27,11 +33,11 @@ export class Inject<L extends Record<string, any>> {
     public createServiceInjector(): (name: keyof L) => ClassDecorator {
 
         return (name: keyof L): ClassDecorator => {
-            return (target: Function): void => {
+            return (target: any): void => {
                 this.service(name as string, target);
                 return;
-            }
-        }
+            };
+        };
     }
 
     public createServiceAutoWirer(): <T extends keyof L>(name: T) => L[T] {
