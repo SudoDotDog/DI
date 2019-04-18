@@ -4,9 +4,9 @@
  * @description Inject
  */
 
-export class Inject<L extends Record<string, any>> {
+export class Inject<L extends Record<string, any> = any> {
 
-    public static getInstance<L extends Record<string, any>>(namespace?: string): Inject<L> {
+    public static getInstance<L extends Record<string, any> = any>(namespace?: string): Inject<L> {
 
         if (namespace) {
 
@@ -34,6 +34,13 @@ export class Inject<L extends Record<string, any>> {
 
         this._services = new Map<keyof L, any>();
         this._instances = new Map<keyof L, any>();
+    }
+
+    public get length(): number {
+        return this._services.size;
+    }
+    public get instancesLength(): number {
+        return this._instances.size;
     }
 
     public remove(): this {
