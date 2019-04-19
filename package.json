@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/SudoDotDog/CI#readme",
   "dependencies": {
+    "@sudoo/bark": "^2.5.1",
     "connor": "^2.4.0"
   },
   "devDependencies": {

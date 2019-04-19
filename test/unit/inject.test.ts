@@ -26,7 +26,7 @@ describe('Given {Inject} class', (): void => {
         const inject: Inject = Inject.getInstance();
 
         // tslint:disable-next-line
-        inject.service(chance.string(), class {
+        inject.service(class {
             public constructor(public name: string) { }
         });
 

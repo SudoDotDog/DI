@@ -4,5 +4,5 @@
  * @description Declare
  */
 
-export type Injector<L extends Record<string, any>> = (name: keyof L) => ClassDecorator;
-export type AutoWirer<L extends Record<string, any>> = <T extends keyof L>(name: T) => L[T];
+export type Injector = () => ClassDecorator;
+export type AutoWirer = <T = any>(clazz: any) => T;
