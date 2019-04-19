@@ -5,6 +5,7 @@
  */
 
 import { AutoWirer, Injector } from "./declare";
+import { ERROR_CODE, panic } from "./panic";
 
 export class Inject<L extends Record<string, any> = Record<string, any>> {
 
@@ -102,7 +103,7 @@ export class Inject<L extends Record<string, any> = Record<string, any>> {
     private _ensureService(name: keyof L): void {
 
         if (!this._services.has(name)) {
-            throw new Error('NONE');
+            throw panic.code(ERROR_CODE.SERVICE_NOT_FOUND, name as string);
         }
     }
 }

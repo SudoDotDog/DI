@@ -17,9 +17,7 @@ Fs.writeFileSync(Path.join(appPath, 'LICENSE'), license, 'utf8');
 const parent: any = JSON.parse(Fs.readFileSync(packagePath, 'utf8'));
 const appPackage: any = {
     name: parent.name,
-    bin: {
-        bark: 'index.js',
-    },
+    main: "index.js",
     version: parent.version,
     description: parent.description,
     repository: parent.repository,
