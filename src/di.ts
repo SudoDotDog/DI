@@ -7,24 +7,24 @@
 import { AutoWirer, Injector } from "./declare";
 import { Inject } from "./inject";
 
-export const getInstance = <L extends Record<string, any> = Record<string, any>>(namespace?: string): Inject<L> => {
+export const getInstance = (namespace?: string): Inject => {
 
     return Inject.getInstance(namespace);
 };
 
-export const asEntries = <L extends Record<string, any> = Record<string, any>>(namespace?: string): [Injector<L>, AutoWirer<L>] => {
+export const asEntries = (namespace?: string): [Injector, AutoWirer] => {
 
-    const instance: Inject<L> = getInstance(namespace);
+    const instance: Inject = getInstance(namespace);
 
     return [instance.createServiceInjector(), instance.createServiceAutoWirer()];
 };
 
-export const asObjects = <L extends Record<string, any> = Record<string, any>>(namespace?: string): Readonly<{
-    readonly Injectable: Injector<L>;
-    readonly AutoWire: AutoWirer<L>;
+export const asObjects = (namespace?: string): Readonly<{
+   readonly Injectable: Injector;
+   readonly AutoWire: AutoWirer;
 }> => {
 
-    const instance: Inject<L> = getInstance(namespace);
+    const instance: Inject = getInstance(namespace);
 
     return Object.freeze({
         Injectable: instance.createServiceInjector(),
@@ -32,12 +32,12 @@ export const asObjects = <L extends Record<string, any> = Record<string, any>>(n
     });
 };
 
-export const getInjector = <L extends Record<string, any> = Record<string, any>>(namespace?: string): Injector<L> => {
+export const getInjector = (namespace?: string): Injector => {
 
-    return getInstance<L>(namespace).createServiceInjector();
+    return getInstance(namespace).createServiceInjector();
 };
 
-export const getAutoWirer = <L extends Record<string, any> = Record<string, any>>(namespace?: string): AutoWirer<L> => {
+export const getAutoWirer = (namespace?: string): AutoWirer => {
 
-    return getInstance<L>(namespace).createServiceAutoWirer();
+    return getInstance(namespace).createServiceAutoWirer();
 };

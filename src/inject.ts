@@ -4,19 +4,20 @@
  * @description Inject
  */
 
+import { _Random } from "@sudoo/bark/random";
 import { AutoWirer, Injector } from "./declare";
 import { ERROR_CODE, panic } from "./panic";
 
-export class Inject<L extends Record<string, any> = Record<string, any>> {
+export class Inject {
 
-    public static getInstance<L extends Record<string, any> = Record<string, any>>(namespace?: string): Inject<L> {
+    public static getInstance(namespace?: string): Inject {
 
         if (namespace) {
 
             if (!this._instance.has(namespace)) {
-                this._instance.set(namespace, new Inject<L>());
+                this._instance.set(namespace, new Inject());
             }
-            return this._instance.get(namespace) as Inject<L>;
+            return this._instance.get(namespace) as Inject;
         }
         return this._globalInstance;
     }
@@ -32,16 +33,16 @@ export class Inject<L extends Record<string, any> = Record<string, any>> {
         this._globalInstance.remove();
     }
 
-    private static readonly _globalInstance: Inject<any> = new Inject();
-    private static readonly _instance: Map<string, Inject<any>> = new Map<string, Inject<any>>();
+    private static readonly _globalInstance: Inject = new Inject();
+    private static readonly _instance: Map<string, Inject> = new Map<string, Inject>();
 
-    private readonly _services: Map<keyof L, any>;
-    private readonly _instances: Map<keyof L, any>;
+    private readonly _services: Map<any, string>;
+    private readonly _instances: Map<string, any>;
 
     private constructor() {
 
-        this._services = new Map<keyof L, any>();
-        this._instances = new Map<keyof L, any>();
+        this._services = new Map<any, string>();
+        this._instances = new Map<string, any>();
     }
 
     public get length(): number {
@@ -58,52 +59,55 @@ export class Inject<L extends Record<string, any> = Record<string, any>> {
         return this;
     }
 
-    public createServiceInjector(): Injector<L> {
+    public createServiceInjector(): Injector {
 
-        return (name: keyof L): ClassDecorator => {
+        return (): ClassDecorator => {
             return (target: any): void => {
-                this.service(name as string, target);
+                this.service(target);
                 return;
             };
         };
     }
 
-    public createServiceAutoWirer(): AutoWirer<L> {
+    public createServiceAutoWirer(): AutoWirer {
 
-        return <T extends keyof L>(name: T): L[T] => {
-            return this.getService(name as string);
+        return <T>(clazz: any): T => {
+            return this.getService(clazz as string);
         };
     }
 
-    public service<T extends keyof L>(name: T, service: L[T]): this {
+    public service(service: any): this {
 
-        this._services.set(name, service);
+        const unique: string = _Random.unique();
+        this._services.set(unique, service);
         return this;
     }
 
-    public getService<T extends keyof L>(name: T): any {
+    public getService(clazz: any): any {
 
-        this._ensureService(name);
-        if (!this._instances.has(name)) {
-            const Construable: any = this._services.get(name) as any;
-            this._instances.set(name, new Construable());
+        this._ensureService(clazz);
+        const hash: string = this._services.get(clazz) as string;
+
+        if (!this._instances.has(clazz)) {
+            this._instances.set(hash, new clazz());
         }
-        return this._instances.get(name);
+        return this._instances.get(hash);
     }
 
-    public refreshService<T extends keyof L>(name: T, ...args: any[]): any {
+    public refreshService(clazz: any, ...args: any[]): any {
 
-        this._ensureService(name);
-        const Construable: L[T] = this._services.get(name) as any;
-        const constructed: any = new Construable(...args);
-        this._instances.set(name, constructed);
+        this._ensureService(clazz);
+        const hash: string = this._services.get(clazz) as string;
+
+        const constructed: any = new clazz(...args);
+        this._instances.set(hash, constructed);
         return constructed;
     }
 
-    private _ensureService(name: keyof L): void {
+    private _ensureService(clazz: any): void {
 
-        if (!this._services.has(name)) {
-            throw panic.code(ERROR_CODE.SERVICE_NOT_FOUND, name as string);
+        if (!this._services.has(clazz)) {
+            throw panic.code(ERROR_CODE.SERVICE_NOT_FOUND, clazz.toString());
         }
     }
 }

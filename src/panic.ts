@@ -15,7 +15,7 @@ export enum ERROR_CODE {
 
 export const ERROR_LIST: Record<ERROR_CODE, string> = {
 
-    [ERROR_CODE.SERVICE_NOT_FOUND]: 'Service: "{}" not found',
+    [ERROR_CODE.SERVICE_NOT_FOUND]: 'Service not found: {}',
 };
 
 export const panic: Panic<ERROR_CODE> = Panic.withDictionary(MODULE_NAME, ERROR_LIST);
