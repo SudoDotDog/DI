@@ -52,6 +52,15 @@ export class Inject {
         return this._instances.size;
     }
 
+    public mock(clazz: any, mock: any): () => void {
+
+        const hash: string = this._ensureService(clazz);
+        const temp: any = this._instances.get(hash);
+        this._instances.set(hash, mock);
+
+        return () => this._instances.set(hash, temp);
+    }
+
     public remove(): this {
 
         this._services.clear();
@@ -76,17 +85,16 @@ export class Inject {
         };
     }
 
-    public service(service: any): this {
+    public service(clazz: any): this {
 
         const unique: string = _Random.unique();
-        this._services.set(service, unique);
+        this._services.set(clazz, unique);
         return this;
     }
 
     public getService(clazz: any): any {
 
-        this._ensureService(clazz);
-        const hash: string = this._services.get(clazz) as string;
+        const hash: string = this._ensureService(clazz);
 
         if (!this._instances.has(hash)) {
             this._instances.set(hash, new clazz());
@@ -96,18 +104,19 @@ export class Inject {
 
     public refreshService(clazz: any, ...args: any[]): this {
 
-        this._ensureService(clazz);
-        const hash: string = this._services.get(clazz) as string;
+        const hash: string = this._ensureService(clazz);
 
         const constructed: any = new clazz(...args);
         this._instances.set(hash, constructed);
         return this;
     }
 
-    private _ensureService(clazz: any): void {
+    private _ensureService(clazz: any): string {
 
         if (!this._services.has(clazz)) {
             throw panic.code(ERROR_CODE.SERVICE_NOT_FOUND, clazz.toString());
         }
+
+        return this._services.get(clazz) as string;
     }
 }
