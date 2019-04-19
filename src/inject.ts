@@ -6,9 +6,9 @@
 
 import { AutoWirer, Injector } from "./declare";
 
-export class Inject<L extends Record<string, any> = any> {
+export class Inject<L extends Record<string, any> = Record<string, any>> {
 
-    public static getInstance<L extends Record<string, any> = any>(namespace?: string): Inject<L> {
+    public static getInstance<L extends Record<string, any> = Record<string, any>>(namespace?: string): Inject<L> {
 
         if (namespace) {
 
@@ -24,6 +24,11 @@ export class Inject<L extends Record<string, any> = any> {
 
         this._globalInstance.remove();
         this._instance.clear();
+    }
+
+    public static removeGlobalInstance(): void {
+
+        this._globalInstance.remove();
     }
 
     private static readonly _globalInstance: Inject<any> = new Inject();
