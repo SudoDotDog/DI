@@ -79,7 +79,7 @@ export class Inject {
     public service(service: any): this {
 
         const unique: string = _Random.unique();
-        this._services.set(unique, service);
+        this._services.set(service, unique);
         return this;
     }
 
@@ -88,20 +88,20 @@ export class Inject {
         this._ensureService(clazz);
         const hash: string = this._services.get(clazz) as string;
 
-        if (!this._instances.has(clazz)) {
+        if (!this._instances.has(hash)) {
             this._instances.set(hash, new clazz());
         }
         return this._instances.get(hash);
     }
 
-    public refreshService(clazz: any, ...args: any[]): any {
+    public refreshService(clazz: any, ...args: any[]): this {
 
         this._ensureService(clazz);
         const hash: string = this._services.get(clazz) as string;
 
         const constructed: any = new clazz(...args);
         this._instances.set(hash, constructed);
-        return constructed;
+        return this;
     }
 
     private _ensureService(clazz: any): void {
