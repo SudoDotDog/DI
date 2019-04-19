@@ -4,6 +4,8 @@
  * @description Inject
  */
 
+import { AutoWirer, Injector } from "./declare";
+
 export class Inject<L extends Record<string, any> = any> {
 
     public static getInstance<L extends Record<string, any> = any>(namespace?: string): Inject<L> {
@@ -50,7 +52,7 @@ export class Inject<L extends Record<string, any> = any> {
         return this;
     }
 
-    public createServiceInjector(): (name: keyof L) => ClassDecorator {
+    public createServiceInjector(): Injector<L> {
 
         return (name: keyof L): ClassDecorator => {
             return (target: any): void => {
@@ -60,7 +62,7 @@ export class Inject<L extends Record<string, any> = any> {
         };
     }
 
-    public createServiceAutoWirer(): <T extends keyof L>(name: T) => L[T] {
+    public createServiceAutoWirer(): AutoWirer<L> {
 
         return <T extends keyof L>(name: T): L[T] => {
             return this.getService(name as string);
